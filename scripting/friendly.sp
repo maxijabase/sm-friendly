@@ -11,7 +11,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_VERSION "2.0"
+#define PLUGIN_VERSION "2.1"
 
 #define PREFIX "{green}[Friendly]{default}"
 
@@ -112,7 +112,11 @@ public void OnPluginEnd()
     }
   }
   
-  delete hTimer;
+  if (hTimer != null)
+  {
+    delete hTimer;
+    hTimer = null;
+  }
 }
 
 public void OnMapStart()
@@ -184,6 +188,11 @@ public Action CMD_Friendly(int client, int args)
 /* Damage Hook Callback */
 public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
 {
+  if (attacker < 1 || attacker > MaxClients || victim < 1 || victim > MaxClients)
+  {
+    return Plugin_Continue;
+  }
+  
   if (!IsValidClient(victim) || !IsValidClient(attacker) || victim == attacker)
   {
     return Plugin_Continue;
@@ -198,6 +207,9 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
   if (isFriendly[victim] || isFriendly[attacker])
   {
     damage = 0.0;
+    damageForce[0] = 0.0;
+    damageForce[1] = 0.0;
+    damageForce[2] = 0.0;
     return Plugin_Changed;
   }
   
